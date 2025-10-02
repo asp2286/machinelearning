@@ -269,6 +269,48 @@ namespace Microsoft.ML
             }
         }
 
+        public unsafe void NextTemperedUInt32(Span<uint> destination)
+        {
+            int n = destination.Length;
+            int filled = 0;
+
+            if (_hasCarry && n != 0)
+            {
+                destination[filled++] = _carry;
+                _hasCarry = false;
+            }
+
+            if (filled >= n)
+                return;
+
+            fixed (uint* pMt = _mt)
+            fixed (uint* pBuf = _buf)
+            fixed (uint* pDst = destination)
+            {
+                while (filled < n)
+                {
+                    if (_mti >= N)
+                        Twist();
+
+                    int avail = N - _mti;
+
+                    if (avail == 0)
+                    {
+                        Twist();
+                        continue;
+                    }
+
+                    int toProduce = Math.Min(avail, n - filled);
+
+                    Temper(new ReadOnlySpan<uint>(pMt + _mti, toProduce), new Span<uint>(pBuf, toProduce));
+                    _mti += toProduce;
+
+                    new ReadOnlySpan<uint>(pBuf, toProduce).CopyTo(new Span<uint>(pDst + filled, toProduce));
+                    filled += toProduce;
+                }
+            }
+        }
+
         public uint NextTemperedUInt32()
         {
             if (_mti >= N)

@@ -313,6 +313,12 @@ namespace Microsoft.ML
 
         public uint NextTemperedUInt32()
         {
+            if (_hasCarry)
+            {
+                _hasCarry = false;
+                return _carry;
+            }
+
             if (_mti >= N)
                 Twist();
 

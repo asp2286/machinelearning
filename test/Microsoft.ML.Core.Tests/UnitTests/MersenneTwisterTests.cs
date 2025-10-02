@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.ML;
+using Microsoft.ML.Internal.Utilities;
 using Microsoft.ML.RunTests;
 using Xunit;
 using Xunit.Abstractions;
@@ -28,11 +28,11 @@ namespace Microsoft.ML.Core.Tests.UnitTests
             baselineTwister.NextTemperedUInt32(baseline);
 
             var twister = new MersenneTwister(seed);
-            int index = 0;
+            var index = 0;
 
             Assert.Equal(baseline[index++], twister.NextTemperedUInt32());
 
-            double firstDouble = twister.NextDouble();
+            var firstDouble = twister.NextDouble();
             Assert.Equal(ToDoubleFromTempered(baseline[index], baseline[index + 1]), firstDouble);
             index += 2;
 
@@ -43,7 +43,7 @@ namespace Microsoft.ML.Core.Tests.UnitTests
 
             Assert.Equal(baseline[index++], twister.NextTemperedUInt32());
 
-            double secondDouble = twister.NextDouble();
+            var secondDouble = twister.NextDouble();
             Assert.Equal(ToDoubleFromTempered(baseline[index], baseline[index + 1]), secondDouble);
             index += 2;
 
@@ -52,7 +52,7 @@ namespace Microsoft.ML.Core.Tests.UnitTests
             Assert.Equal(Slice(baseline, index, secondBuffer.Length), secondBuffer);
             index += secondBuffer.Length;
 
-            double thirdDouble = twister.NextDouble();
+            var thirdDouble = twister.NextDouble();
             Assert.Equal(ToDoubleFromTempered(baseline[index], baseline[index + 1]), thirdDouble);
             index += 2;
 
@@ -75,10 +75,10 @@ namespace Microsoft.ML.Core.Tests.UnitTests
 
         private static double ToDoubleFromTempered(uint first, uint second)
         {
-            ulong a = (ulong)(first >> 5);
-            ulong b = (ulong)(second >> 6);
-            ulong mantissa = (a << 26) | b;
-            long bits = unchecked((long)((1023UL << 52) | mantissa));
+            var a = (ulong)(first >> 5);
+            var b = (ulong)(second >> 6);
+            var mantissa = (a << 26) | b;
+            var bits = unchecked((long)((1023UL << 52) | mantissa));
             return BitConverter.Int64BitsToDouble(bits) - 1.0;
         }
     }

@@ -10,7 +10,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-namespace Microsoft.ML
+namespace Microsoft.ML.Internal.Utilities
 {
     /// <summary>
     /// Highly optimized SIMD-enabled Mersenne Twister implementation.
@@ -42,7 +42,7 @@ namespace Microsoft.ML
                 _mt[0] = s;
                 for (_mti = 1; _mti < N; _mti++)
                 {
-                    uint x = _mt[_mti - 1];
+                    var x = _mt[_mti - 1];
                     _mt[_mti] = 1812433253U * (x ^ (x >> 30)) + (uint)_mti;
                 }
             }
@@ -51,7 +51,7 @@ namespace Microsoft.ML
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Twist()
         {
-            int kk = 0;
+            var kk = 0;
             uint y;
 
             for (; kk < N - M; kk++)
@@ -74,9 +74,9 @@ namespace Microsoft.ML
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void TemperScalar(ReadOnlySpan<uint> src, Span<uint> dst)
         {
-            for (int i = 0; i < src.Length; i++)
+            for (var i = 0; i < src.Length; i++)
             {
-                uint y = src[i];
+                var y = src[i];
                 y ^= (y >> 11);
                 y ^= (y << 7) & 0x9D2C5680U;
                 y ^= (y << 15) & 0xEFC60000U;
@@ -89,20 +89,20 @@ namespace Microsoft.ML
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void TemperAvx2(ReadOnlySpan<uint> src, Span<uint> dst)
         {
-            int len = src.Length;
-            int i = 0;
-            Vector256<uint> c7 = Vector256.Create(0x9D2C5680u);
-            Vector256<uint> c15 = Vector256.Create(0xEFC60000u);
+            var len = src.Length;
+            var i = 0;
+            var c7 = Vector256.Create(0x9D2C5680u);
+            var c15 = Vector256.Create(0xEFC60000u);
 
             fixed (uint* pSrc = src)
             fixed (uint* pDst = dst)
             {
                 for (; i + 8 <= len; i += 8)
                 {
-                    Vector256<uint> y = Avx.LoadVector256(pSrc + i);
+                    var y = Avx.LoadVector256(pSrc + i);
                     y = Avx2.Xor(y, Avx2.ShiftRightLogical(y, 11));
 
-                    Vector256<uint> t = Avx2.And(Avx2.ShiftLeftLogical(y, 7), c7);
+                    var t = Avx2.And(Avx2.ShiftLeftLogical(y, 7), c7);
                     y = Avx2.Xor(y, t);
 
                     t = Avx2.And(Avx2.ShiftLeftLogical(y, 15), c15);
@@ -115,7 +115,7 @@ namespace Microsoft.ML
 
             for (; i < len; i++)
             {
-                uint y = src[i];
+                var y = src[i];
                 y ^= (y >> 11);
                 y ^= (y << 7) & 0x9D2C5680u;
                 y ^= (y << 15) & 0xEFC60000u;
@@ -130,20 +130,20 @@ namespace Microsoft.ML
             if (!AdvSimd.IsSupported)
                 throw new PlatformNotSupportedException("AdvSimd is not supported on this CPU.");
 
-            int len = src.Length;
-            int i = 0;
-            Vector128<uint> c7 = Vector128.Create(0x9D2C5680u);
-            Vector128<uint> c15 = Vector128.Create(0xEFC60000u);
+            var len = src.Length;
+            var i = 0;
+            var c7 = Vector128.Create(0x9D2C5680u);
+            var c15 = Vector128.Create(0xEFC60000u);
 
             fixed (uint* pSrc = src)
             fixed (uint* pDst = dst)
             {
                 for (; i + 4 <= len; i += 4)
                 {
-                    Vector128<uint> y = Unsafe.ReadUnaligned<Vector128<uint>>((byte*)(pSrc + i));
+                    var y = Unsafe.ReadUnaligned<Vector128<uint>>((byte*)(pSrc + i));
                     y = AdvSimd.Xor(y, AdvSimd.ShiftRightLogical(y, 11));
 
-                    Vector128<uint> t = AdvSimd.And(AdvSimd.ShiftLeftLogical(y, 7), c7);
+                    var t = AdvSimd.And(AdvSimd.ShiftLeftLogical(y, 7), c7);
                     y = AdvSimd.Xor(y, t);
 
                     t = AdvSimd.And(AdvSimd.ShiftLeftLogical(y, 15), c15);
@@ -156,7 +156,7 @@ namespace Microsoft.ML
 
             for (; i < len; i++)
             {
-                uint y = src[i];
+                var y = src[i];
                 y ^= (y >> 11);
                 y ^= (y << 7) & 0x9D2C5680u;
                 y ^= (y << 15) & 0xEFC60000u;
@@ -188,7 +188,7 @@ namespace Microsoft.ML
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static double DoubleFromMant53(ulong mant53)
         {
-            long bits = unchecked((long)((1023UL << 52) | mant53));
+            var bits = unchecked((long)((1023UL << 52) | mant53));
             return BitConverter.Int64BitsToDouble(bits) - 1.0;
         }
 
@@ -201,8 +201,8 @@ namespace Microsoft.ML
 
         public unsafe void NextDoubles(Span<double> destination)
         {
-            int n = destination.Length;
-            int filled = 0;
+            var n = destination.Length;
+            var filled = 0;
 
             fixed (uint* pMt = _mt)
             fixed (uint* pBuf = _buf)
@@ -224,8 +224,8 @@ namespace Microsoft.ML
                     if (_mti >= N)
                         Twist();
 
-                    int pairsRemaining = n - filled;
-                    int availInts = N - _mti;
+                    var pairsRemaining = n - filled;
+                    var availInts = N - _mti;
 
                     if (availInts == 0)
                     {
@@ -233,21 +233,21 @@ namespace Microsoft.ML
                         continue;
                     }
 
-                    int maxPairsFromAvail = 1 + ((availInts - 1) >> 1);
-                    int makePairs = Math.Min(pairsRemaining, maxPairsFromAvail);
-                    int wantInts = (makePairs << 1) - 1;
+                    var maxPairsFromAvail = 1 + ((availInts - 1) >> 1);
+                    var makePairs = Math.Min(pairsRemaining, maxPairsFromAvail);
+                    var wantInts = (makePairs << 1) - 1;
 
                     Temper(new ReadOnlySpan<uint>(pMt + _mti, wantInts), new Span<uint>(pBuf, wantInts));
                     _mti += wantInts;
 
-                    int j = 0;
-                    ulong a = (ulong)(_carry >> 5);
-                    ulong b = (ulong)(pBuf[j++] >> 6);
+                    var j = 0;
+                    var a = (ulong)(_carry >> 5);
+                    var b = (ulong)(pBuf[j++] >> 6);
                     pDst[filled++] = DoubleFromMant53((a << 26) | b);
                     _hasCarry = false;
 
-                    int remainingPairs = makePairs - 1;
-                    for (int p = 0; p < remainingPairs; p++)
+                    var remainingPairs = makePairs - 1;
+                    for (var p = 0; p < remainingPairs; p++)
                     {
                         a = (ulong)(pBuf[j++] >> 5);
                         b = (ulong)(pBuf[j++] >> 6);
@@ -256,7 +256,7 @@ namespace Microsoft.ML
 
                     if (filled < n)
                     {
-                        int intsLeftBeforeTwist = N - _mti;
+                        var intsLeftBeforeTwist = N - _mti;
                         if (intsLeftBeforeTwist == 1)
                         {
                             Temper(new ReadOnlySpan<uint>(pMt + _mti, 1), new Span<uint>(pBuf, 1));
@@ -271,8 +271,8 @@ namespace Microsoft.ML
 
         public unsafe void NextTemperedUInt32(Span<uint> destination)
         {
-            int n = destination.Length;
-            int filled = 0;
+            var n = destination.Length;
+            var filled = 0;
 
             if (_hasCarry && n != 0)
             {
@@ -292,7 +292,7 @@ namespace Microsoft.ML
                     if (_mti >= N)
                         Twist();
 
-                    int avail = N - _mti;
+                    var avail = N - _mti;
 
                     if (avail == 0)
                     {
@@ -300,7 +300,7 @@ namespace Microsoft.ML
                         continue;
                     }
 
-                    int toProduce = Math.Min(avail, n - filled);
+                    var toProduce = Math.Min(avail, n - filled);
 
                     Temper(new ReadOnlySpan<uint>(pMt + _mti, toProduce), new Span<uint>(pBuf, toProduce));
                     _mti += toProduce;
@@ -322,7 +322,7 @@ namespace Microsoft.ML
             if (_mti >= N)
                 Twist();
 
-            uint y = _mt[_mti++];
+            var y = _mt[_mti++];
             y ^= (y >> 11);
             y ^= (y << 7) & 0x9D2C5680u;
             y ^= (y << 15) & 0xEFC60000u;

@@ -192,6 +192,13 @@ namespace Microsoft.ML
             return BitConverter.Int64BitsToDouble(bits) - 1.0;
         }
 
+        public double NextDouble()
+        {
+            Span<double> buffer = stackalloc double[1];
+            NextDoubles(buffer);
+            return buffer[0];
+        }
+
         public unsafe void NextDoubles(Span<double> destination)
         {
             int n = destination.Length;

@@ -66,6 +66,62 @@ namespace Microsoft.ML.Core.Tests.UnitTests
             Assert.True(index <= baseline.Length);
         }
 
+        [Fact]
+        [TestCategory("Utilities")]
+        public void ProducesExpectedSequencesForDeterministicSeed()
+        {
+            const uint seed = 5489u;
+
+            var expectedDoubles = new[]
+            {
+                0.8147236863931789,
+                0.9057919370756192,
+                0.12698681629350606,
+                0.9133758561390194,
+                0.6323592462254095,
+                0.09754040499940952,
+                0.2784982188670484,
+                0.5468815192049838,
+                0.9575068354342976,
+                0.9648885351992765,
+            };
+
+            var expectedTempered = new uint[]
+            {
+                676943009,
+                3117454609,
+                4168664243,
+                4213834039,
+                4111000746,
+                471852626,
+                2084672536,
+                3427838553,
+                3437178460,
+                1275731771,
+            };
+
+            var doubleTwister = new MersenneTwister(seed);
+            var actualDoubles = new double[expectedDoubles.Length];
+            for (var i = 0; i < actualDoubles.Length; i++)
+            {
+                actualDoubles[i] = doubleTwister.NextDouble();
+            }
+
+            var uintTwister = new MersenneTwister(seed);
+            var actualTempered = new uint[expectedTempered.Length];
+            for (var i = 0; i < actualTempered.Length; i++)
+            {
+                actualTempered[i] = uintTwister.NextTemperedUInt32();
+            }
+
+            for (var i = 0; i < expectedDoubles.Length; i++)
+            {
+                Assert.Equal(expectedDoubles[i], actualDoubles[i], precision: 15);
+            }
+
+            Assert.Equal(expectedTempered, actualTempered);
+        }
+
         private static uint[] Slice(uint[] source, int start, int length)
         {
             var result = new uint[length];

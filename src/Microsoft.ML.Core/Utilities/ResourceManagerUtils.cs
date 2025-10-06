@@ -328,20 +328,36 @@ namespace Microsoft.ML.Internal.Utilities
             }
 
             using var headRequest = new HttpRequestMessage(HttpMethod.Head, uri);
+
+            static HttpResponseMessage Send(HttpClient client, HttpRequestMessage request)
+            {
+                return client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None).GetAwaiter().GetResult();
+            }
+
             try
             {
-                using var headResponse = httpClient.Send(headRequest);
+                using var headResponse = Send(httpClient, headRequest);
+                if (headResponse.StatusCode == HttpStatusCode.MethodNotAllowed || headResponse.StatusCode == HttpStatusCode.NotImplemented)
+                {
+                    using var getRequest = new HttpRequestMessage(HttpMethod.Get, uri);
+                    using var getResponse = Send(httpClient, getRequest);
+                    return IsRedirectToDefault(getResponse);
+                }
+
                 return IsRedirectToDefault(headResponse);
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.MethodNotAllowed || ex.StatusCode == HttpStatusCode.NotImplemented)
-            {
-                using var getRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-                using var getResponse = httpClient.Send(getRequest);
-                return IsRedirectToDefault(getResponse);
             }
             catch (HttpRequestException)
             {
-                return false;
+                try
+                {
+                    using var getRequest = new HttpRequestMessage(HttpMethod.Get, uri);
+                    using var getResponse = Send(httpClient, getRequest);
+                    return IsRedirectToDefault(getResponse);
+                }
+                catch (HttpRequestException)
+                {
+                    return false;
+                }
             }
         }
 

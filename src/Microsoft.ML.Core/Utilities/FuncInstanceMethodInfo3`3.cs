@@ -73,8 +73,12 @@ namespace Microsoft.ML.Internal.Utilities
             Contracts.CheckParam(methodCallExpression.Arguments[0] is ConstantExpression, nameof(expression), "Unexpected expression form");
             var delegateTypeExpression = (ConstantExpression)methodCallExpression.Arguments[0];
             Contracts.CheckParam(delegateTypeExpression.Type == typeof(Type), nameof(expression), "Unexpected expression form");
-            Contracts.CheckParam(delegateTypeExpression.Value is Type, nameof(expression), "Unexpected expression form");
-            Contracts.CheckParam((Type)delegateTypeExpression.Value! == typeof(Func<T, TResult>), nameof(expression), "Unexpected expression form");
+            if (delegateTypeExpression.Value is not Type delegateType)
+            {
+                throw Contracts.ExceptParam(nameof(expression), "Unexpected expression form");
+            }
+
+            Contracts.CheckParam(delegateType == typeof(Func<T, TResult>), nameof(expression), "Unexpected expression form");
             Contracts.CheckParam(methodCallExpression.Arguments[1] is ParameterExpression, nameof(expression), "Unexpected expression form");
             Contracts.CheckParam(methodCallExpression.Arguments[1] == expression.Parameters[0], nameof(expression), "Unexpected expression form");
 
@@ -82,9 +86,10 @@ namespace Microsoft.ML.Internal.Utilities
             Contracts.CheckParam(methodCallExpression.Object is ConstantExpression, nameof(expression), "Unexpected expression form");
             var methodInfoExpression = (ConstantExpression)methodCallExpression.Object;
             Contracts.CheckParam(methodInfoExpression.Type == typeof(MethodInfo), nameof(expression), "Unexpected expression form");
-            Contracts.CheckParam(methodInfoExpression.Value is MethodInfo, nameof(expression), "Unexpected expression form");
-
-            var methodInfo = (MethodInfo)methodInfoExpression.Value!;
+            if (methodInfoExpression.Value is not MethodInfo methodInfo)
+            {
+                throw Contracts.ExceptParam(nameof(expression), "Unexpected expression form");
+            }
             Contracts.CheckParam(expression.Body is UnaryExpression, nameof(expression), "Unexpected expression form");
             Contracts.CheckParam(((UnaryExpression)expression.Body).Operand is MethodCallExpression, nameof(expression), "Unexpected expression form");
 

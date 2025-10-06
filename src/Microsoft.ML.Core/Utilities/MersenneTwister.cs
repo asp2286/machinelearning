@@ -185,11 +185,12 @@ namespace Microsoft.ML.Internal.Utilities
             TemperScalar(src, dst);
         }
 
+        private const double DoubleDivisor = 1.0 / 9007199254740992.0; // 1 / 2^53
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static double DoubleFromMant53(ulong mant53)
         {
-            var bits = unchecked((long)((1023UL << 52) | mant53));
-            return BitConverter.Int64BitsToDouble(bits) - 1.0;
+            return mant53 * DoubleDivisor;
         }
 
         public double NextDouble()

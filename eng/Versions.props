@@ -100,6 +100,7 @@
     <MicrosoftDotNetPlatformAbstractionsVersion>5.0.0-preview.5.20278.1</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftDotNetRemoteExecutorVersion>8.0.0-beta.24525.2</MicrosoftDotNetRemoteExecutorVersion>
     <MicrosoftDotNetXUnitExtensionsVersion>10.0.0-beta.25268.1</MicrosoftDotNetXUnitExtensionsVersion>
+    <XunitVersion>2.6.6</XunitVersion>
     <MicrosoftExtensionsDependencyModelVersion>9.0.4</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftMLOnnxTestModelsVersion>0.0.6-test</MicrosoftMLOnnxTestModelsVersion>
     <MicrosoftMLTensorFlowTestModelsVersion>0.0.13-test</MicrosoftMLTensorFlowTestModelsVersion>

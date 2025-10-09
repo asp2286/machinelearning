@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -56,7 +58,11 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
             throw new XunitException(ComposeMessageWithDetails(message, BuildEqualityMessage(expected, actual)));
         }
 
+#if NETCOREAPP
         public void True([DoesNotReturnIf(false)] bool assert, string? message = null)
+#else
+        public void True(bool assert, string? message = null)
+#endif
         {
             if (message is null && Context.IsEmpty)
             {
@@ -68,7 +74,11 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
             }
         }
 
+#if NETCOREAPP
         public void False([DoesNotReturnIf(true)] bool assert, string? message = null)
+#else
+        public void False(bool assert, string? message = null)
+#endif
         {
             if (message is null && Context.IsEmpty)
             {
@@ -80,7 +90,9 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
             }
         }
 
+#if NETCOREAPP
         [DoesNotReturn]
+#endif
         public void Fail(string? message = null)
             => throw new XunitException(ComposeMessage(message));
 
@@ -140,7 +152,7 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
         {
             try
             {
-                Assert.Equal(expected, actual);
+                Assert.Equal((object?)expected, (object?)actual);
             }
             catch (XunitException ex)
             {

@@ -100,10 +100,6 @@
     <PackageVersion Include="System.Data.SQLite.Core" Version="$(SystemDataSQLiteCoreVersion)" />
     <PackageVersion Include="System.Data.SQLite" Version="$(SystemDataSQLiteCoreVersion)" />
     <PackageVersion Include="runtime.native.System.Data.SqlClient.sni" Version="$(RuntimeNativeSystemDataSqlClientSniVersion)" />
-    <PackageVersion Include="xunit" Version="$(XunitVersion)" />
-    <PackageVersion Include="xunit.extensibility.core" Version="$(XunitVersion)" />
-    <PackageVersion Include="xunit.extensibility.execution" Version="$(XunitVersion)" />
-    <PackageVersion Include="Xunit.Combinatorial" Version="$(XunitCombinatorialVersion)" />
 
     <!-- Build/infrastructure dependencies -->
     <PackageVersion Include="Codecov" Version="$(CodecovVersion)" />

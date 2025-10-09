@@ -90,11 +90,17 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
             }
         }
 
-#if NETCOREAPP || NETFRAMEWORK
+#if NETCOREAPP
         [DoesNotReturn]
+#endif
+#if !NETCOREAPP
+#pragma warning disable CS8770 // Attribute unavailable on this target.
 #endif
         public void Fail(string? message = null)
             => throw new XunitException(ComposeMessage(message));
+#if !NETCOREAPP
+#pragma warning restore CS8770
+#endif
 
         public void LanguageIsSupported(string language)
         {

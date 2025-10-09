@@ -17,7 +17,7 @@ using Xunit.Sdk;
 namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
 {
     /// <summary>
-    /// A drop-in replacement for <see cref="XunitVerifier"/> that composes nicely with xUnit.net 2.8+.
+    /// A drop-in replacement for xUnit.net's default verifier that composes nicely with xUnit.net 2.8+.
     /// </summary>
     internal class CompatibleXUnitVerifier : IVerifier
     {
@@ -90,7 +90,7 @@ namespace Microsoft.ML.CodeAnalyzer.Tests.Helpers
             }
         }
 
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
         [DoesNotReturn]
 #endif
         public void Fail(string? message = null)

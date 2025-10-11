@@ -22,7 +22,6 @@ namespace Microsoft.ML
     {
         // REVIEW: consider making LocalEnvironment and MLContext the same class instead of encapsulation.
         private readonly LocalEnvironment _env;
-        private readonly IRandomSource _rng;
 
         /// <summary>
         /// Gets the trainers and tasks specific to binary classification problems.
@@ -144,19 +143,8 @@ namespace Microsoft.ML
         /// So, the predictions from a loaded model don't depend on the seed value.
         /// </remarks>
         public MLContext(int? seed = null)
-            : this(seed, rng: null)
         {
-        }
-
-        /// <summary>
-        /// Create the ML context using the provided random source.
-        /// </summary>
-        /// <param name="seed">Seed for MLContext's random number generator. Ignored when <paramref name="rng"/> is supplied.</param>
-        /// <param name="rng">Custom random number generator to use for all operations. When <see langword="null"/>, the default ML.NET generator is used.</param>
-        public MLContext(int? seed, IRandomSource rng)
-        {
-            _rng = rng ?? new RandomSourceAdapter(RandomUtils.Create(seed));
-            _env = new LocalEnvironment(seed, _rng);
+            _env = new LocalEnvironment(seed);
             _env.AddListener(ProcessMessage);
 
             BinaryClassification = new BinaryClassificationCatalog(_env);
@@ -216,6 +204,5 @@ namespace Microsoft.ML
         public bool TryGetOption<T>(string name, out T value) => _env.TryGetOption<T>(name, out value);
         public T GetOptionOrDefault<T>(string name) => _env.GetOptionOrDefault<T>(name);
         public bool RemoveOption(string name) => _env.RemoveOption(name);
-        internal IRandomSource RandomSource => _rng;
     }
 }

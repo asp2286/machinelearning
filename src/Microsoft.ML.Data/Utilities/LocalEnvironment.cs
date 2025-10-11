@@ -4,7 +4,6 @@
 
 using System;
 using Microsoft.ML.Runtime;
-using Microsoft.ML;
 
 namespace Microsoft.ML.Data
 {
@@ -47,8 +46,8 @@ namespace Microsoft.ML.Data
         /// Create an ML.NET <see cref="IHostEnvironment"/> for local execution.
         /// </summary>
         /// <param name="seed">Random seed. Set to <c>null</c> for a non-deterministic environment.</param>
-        public LocalEnvironment(int? seed = null, IRandomSource randomSource = null)
-            : base(seed, verbose: false, random: randomSource is null ? null : new RandomSourceDelegatingRandom(randomSource))
+        public LocalEnvironment(int? seed = null)
+            : base(seed, verbose: false)
         {
         }
 

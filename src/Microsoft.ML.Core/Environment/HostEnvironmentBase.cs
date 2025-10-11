@@ -369,11 +369,11 @@ internal abstract class HostEnvironmentBase<TEnv> : ChannelProviderBase, IHostEn
     /// The main constructor.
     /// </summary>
     protected HostEnvironmentBase(int? seed, bool verbose,
-        string shortName = null, string parentFullName = null, Random random = null)
+        string shortName = null, string parentFullName = null)
         : base(shortName, parentFullName, verbose)
     {
         Seed = seed;
-        _rand = random ?? RandomUtils.Create(Seed);
+        _rand = RandomUtils.Create(Seed);
         ListenerDict = new ConcurrentDictionary<Type, Dispatcher>();
         ProgressTracker = new ProgressReporting.ProgressTracker(this);
         _cancelLock = new object();
